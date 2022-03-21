@@ -5,6 +5,8 @@ let pokeDiv = document.getElementById("pokeDetails");
 var submitListener = document.getElementById("submitListener");
 let saveBtn = document.getElementById("saveBtn");
 let deleteBtn = document.getElementById("deleteBtn");
+var historyButtonsEl = document.getElementById("history-buttons");
+var historyCardEl = document.getElementById("history");
 var pokeSearchesArray = [];
 
 // Grab pokemon name / and image
@@ -30,6 +32,18 @@ var fetchPokeData = function (pokeName) {
       console.log("charcterImg", pokeNameData.sprites.front_default);
       imgElement.setAttribute("src", pokeNameData.sprites.front_default);
       imgElement.setAttribute("alt", dataTypes);
+
+      // Save local
+      saveBtn.addEventListener("click", function savePokemon() {
+        console.log(pokeNameData.name);
+        if (pokeSearchesArray.indexOf(pokeNameData.name) === -1) {
+          pokeSearchesArray.push(pokeNameData.name);
+          localStorage.setItem(
+            "Search History",
+            JSON.stringify(pokeSearchesArray)
+          );
+        }
+      });
     });
 };
 // Removed old Data from past seach
@@ -43,7 +57,6 @@ let getPokeName = function () {
   var pTag = document.createElement("p");
   pTag.setAttribute("id", "pokename");
   pTag.textContent = "Name: ";
-  console.log(pTag);
   pokeDiv.append(pTag);
 };
 getPokeName();
@@ -103,34 +116,6 @@ var fetchPokeAbility = function (pokeName) {
     });
 };
 
-// Save local | load local (last priority) | Delete Local
-saveBtn.addEventListener("click", function savePokemon() {
-  console.log(pokeDiv.value);
-  if (pokeSearchesArray.indexOf(pokeDiv) === -1) {
-    pokeSearchesArray.push(pokeDiv);
-    localStorage.setItem("Search History", JSON.stringify(pokeSearchesArray));
-  }
-});
-
-// var loadHistory = function() {
-//     searchArray = JSON.parse(localStorage.getItem("Search History"));
-
-//     if (searchArray) {
-//         searchHistoryArray = JSON.parse(localStorage.getItem("Search History"));
-//         for (let i = 0; i < 6; i++) {
-//             var searchHistoryEl = document.createElement('button');
-//             searchHistoryEl.className = "btn";
-//             searchHistoryEl.setAttribute("data-city", searchArray[i])
-//             searchHistoryEl.innerHTML = searchArray[i];
-//             historyButtonsEl.appendChild(searchHistoryEl);
-//             historyCardEl.removeAttribute("style");
-//         }
-
-//     }
-// }
-
-//loadHistory();
-
 submitListener.addEventListener("submit", function (event) {
   event.preventDefault();
   var searchText = document.getElementById("characterName").value;
@@ -145,3 +130,20 @@ submitListener.addEventListener("submit", function (event) {
     pokeNickname.textContent = "";
   }
 });
+
+var loadHistory = function () {
+  pokeSearchesArray = JSON.parse(localStorage.getItem("Search History"));
+  if (pokeSearchesArray) {
+    searchHistoryArray = JSON.parse(localStorage.getItem("Search History"));
+    for (let i = 0; i < 6; i++) {
+      var searchHistoryEl = document.createElement("button");
+      searchHistoryEl.className = "btn";
+      searchHistoryEl.setAttribute("data-pokemon", pokeSearchesArray[i]);
+      searchHistoryEl.innerHTML = pokeSearchesArray[i];
+      historyButtonsEl.appendChild(searchHistoryEl);
+      historyCardEl.removeAttribute("style");
+    }
+  }
+};
+
+loadHistory();
